@@ -21,6 +21,8 @@ rl.question("你喜欢的内容：", function (answer) {
 })
 
 rl.on("close", function () {
+    let isDownloadDirExists = fs.existsSync(`${__dirname}/download`)
+    if(!isDownloadDirExists)fs.mkdirSync(`${__dirname}/download`, 0777)
     request({
         method: "GET",
         url: `https://www.meitulu.com/search/${encodeURIComponent(searchStr)}`,
@@ -50,17 +52,18 @@ myEmitter.on("getDetailMsg", function (targetUrls) {
             url,
             title
         } = item
+        title = title.replace(/[\s\\/:\*\?\"<>\|]/g, "")
         proList.push(new Promise((resolve) => getImgSrc(url, title, resolve)).then(() => {
-            let isExists = fs.existsSync(`${__dirname}/downloads/${title}`)
+            let isExists = fs.existsSync(`${__dirname}/download/${title}`)
             if (!isExists) {
-                fs.mkdirSync(`${__dirname}/downloads/${title}`, 0777)
+                fs.mkdirSync(`${__dirname}/download/${title}`, 0777)
             }
         }))
     })
     Promise.all(proList).then(() => {
         imageSrcList.forEach(item => {
             request(item.imgSrc).on("error", (err)=>{
-            }).pipe(fs.createWriteStream(`${__dirname}/downloads/${item.title}/${item.name}`))
+            }).pipe(fs.createWriteStream(`${__dirname}/download/${item.title}/${item.name}`))
         })
     })
 
