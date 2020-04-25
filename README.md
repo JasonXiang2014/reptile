@@ -1,5 +1,5 @@
 # reptile
-node爬虫
+扒取美图录上的图片资源。使用request进行网络请求，jsdom解析dom。
 
 ## 配置
 安装node环境
